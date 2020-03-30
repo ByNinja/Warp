@@ -103,7 +103,9 @@ class Warp
             if ($force) {
                 $player->teleport($this->position);
             } else {
-                if (!$this->hasCoinPlugin() || Coin::getCoin($player) >= $this->requireMoney) {
+                if (!$this->hasCoinPlugin()) goto skip;
+                if (Coin::getCoin($player) >= $this->requireMoney) {
+                    skip:
                     if ($this->permission === Permission::DEFAULT_TRUE || $player->hasPermission($this->permission)) {
                         if ($this->requireItem === null || $player->getInventory()->contains($this->requireItem)) {
                             if (Server::getInstance()->getPluginManager()->getPlugin("SLevel") !== null) {
@@ -120,6 +122,7 @@ class Warp
                             $player->teleport($this->position);
                             $player->sendMessage(WarpLoader::PREFIX . "{$this->warpName} (으)로 이동했습니다.");
                             $player->addTitle("§l§6[ §f{$this->warpName} §6]", "§a{$this->warpName}§7 (으)로 워프했습니다.", 5, 14, 5);
+
                             WarpLoader::getInstance()->getScheduler()->scheduleTask(new ClosureTask(function (int $currentTick) use ($player): void {
                                 if ($player instanceof Player && $player->isConnected()) $player->level->addSound(new EndermanTeleportSound($player->getPosition()));
                             }));
